@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Feedback Report</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: auto;
+            margin-top: 50px;
+        }
+
+        .feedback-card {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            color: #343a40;
+        }
+
+        p {
+            color: #6c757d;
+        }
+    </style>
+</head>
+
+<body style="background-image: url({{bgimgpath}});background-repeat: no-repeat;background-size: cover;">
+    <div class="container">
+        <div class="feedback-card">
+            <h2>Feedback Report</h2>
+            <hr>
+            <h3>Staff Name: {{ Name }}</h3>
+            <div>
+                <h4>Feedback Counts</h4>
+                <!--<ul>
+                    {% for filename, prediction in r %}
+                    <li>File: {{ filename }}, Predicted Class: {{ prediction }}</li>
+                    {% endfor %}
+                </ul>-->
+                <ul>
+                    <li>Positive: {{ class_counts['Positive'] }}</li>
+                    <li>Neutral: {{ class_counts['Neutral'] }}</li>
+                    <li>Negative: {{ class_counts['Negative'] }}</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="feedback-card">
+            <h3>Feedback Distribution</h3>
+            <canvas id="feedbackChart"></canvas>
+        </div>
+        {% if class_counts['Positive'] < class_counts['Negative'] or class_counts['Positive'] < class_counts['Neutral'] %}
+        <p class="feedback-card" style="color: red; font-weight: bold;">Your positive feedback is less than negative and neutral feedback. Please listen voice feedbacks thoroughly and change your teaching style as per students expectation.</p>
+        {% endif %}
+
+    </div>
+
+    <script>
+        var ctx = document.getElementById('feedbackChart').getContext('2d');
+        var predictions = {{ r|tojson }};
+        var positiveCount = predictions.filter(prediction => prediction[1] === 'Positive').length;
+        var negativeCount = predictions.filter(prediction => prediction[1] === 'Negative').length;
+        var neutralCount = predictions.filter(prediction => prediction[1] === 'Neutral').length;
+
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Positive', 'Negative', 'Neutral'],
+                datasets: [{
+                    label: 'Feedback Count',
+                    data: [positiveCount, negativeCount, neutralCount],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+
+</html>
